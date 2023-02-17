@@ -1,6 +1,6 @@
 ---
 title: "SMPA - Grouping Assignment"
-author: "YourNameHere"
+author: "Riya Sharma"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 format:
   html:
