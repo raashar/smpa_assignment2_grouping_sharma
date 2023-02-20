@@ -95,20 +95,20 @@ payments %>%
 
 Tally the total overall disbursement amounts for each month (distinguishing between say, Oct. 2018 v. Oct. 2019). In which month was spending the highest?
 
-- In order to tally by month and distinguish by year, I created a new variable called disbursement_year_month that concatenated the month and year of a specific disbursement with the paste() function. Then, I grouped the payments dataset by that variable and summarized by the total disbursement amount using the sum() function. Lastly, I arranged the amount_spent in descending order to discover that spending was highest in October 2018 at $9,738,567.60. 
+- In order to tally by month and distinguish by year, I grouped the payments dataset by the month and year variables and summarized by the total disbursement amount using the sum() function. Lastly, I arranged the amount_spent in descending order to discover that spending was highest in October 2018 at $9,738,567.60. 
 
 ```{r}
 
-payments$disbursement_year_month = paste(payments$disbursement_month, payments$disbursement_year, sep = " ")
-
 payments %>%
-  group_by(disbursement_year_month) %>%
+  group_by(disbursement_month, disbursement_year) %>%
   summarize(amount_spent = sum(disbursement_amount)) %>%
   arrange(desc(amount_spent))
 
 ```
 
 Which recipient (recipient_name) was paid the most in the 2020 election cycle?
+
+- In order to check for the 2020 election cycle specifically, I filtered the election_cycle column for the year 2020. Then, I grouped the dataset by recipient and summarized by the total disbursement amount using the sum() function for the disbursement_amount variable and naming it amount_paid. Lastly, I arranged the amount_paid in descending order to discover that the recipient paid the most overall was American Made Media Consultants, LLC at $9,772,583.64.
 
 ```{r}
 
@@ -118,12 +118,11 @@ payments %>%
   summarize(amount_paid = sum(disbursement_amount)) %>%
   arrange(desc(amount_paid))
 
-
-
-
 ```
 
 Look at what this recipient was paid for. What service or good (see the "disbursement_description") were they paid the most for?
+
+- I found that they were paid the most for "Placed Media". I first called the payments dataset and used the tidyverse pipe operator to connect the group_by() command. Then, I once again filtered by the 2020 election cycle and grouped by recipient_name. I used summarize() to sort by the disbursement_description and disbursement_amount and arranged the disbursement_amount variable in descending order so the highest payment would show up first. 
 
 ```{r}
 
@@ -140,9 +139,14 @@ payments %>%
 
 What's the most common category overall (see "disbursement_description") the campaign spent money on?
 
+- I first called the payments dataset and used the tidyverse pipe operator to connect the group_by() command. Then, I grouped by disbursement_description and used summarize() to sort by the total number of times the campaign spent money on a specific type of disbursement. Finally, I arranged the total variable in descending order so the most common payment would show up first. The most common description was "Merchant Fees" with a total of 1002 disbursements. 
+
 ```{r}
 
-
+payments %>%
+  group_by(disbursement_description) %>%
+  summarize(total = n()) %>%
+  arrange(desc(total))
 
 
 
@@ -151,10 +155,15 @@ What's the most common category overall (see "disbursement_description") the cam
 
 Who were the 5 biggest recipients of campaign spending on "LEGAL CONSULTING"..?
 
+- I first called the payments dataset and used the tidyverse pipe operator to connect the filter() function so I could filter by the "LEGAL CONSULTING" description. Then, I grouped by recipient_name and used summarize() to sort by the total number of times the campaign spent money on a specific type of disbursement and paid, which sums the disbursements for each recipient. Finally, I arranged the paid variable in descending order so the biggest, highest paid legal consultants would show up first. The most highly paid consultants were JONES DAY; LAROCCA HORNIK ROSEN GREENBERG & BLAHA LLP; KASOWITZ, BENSON, TORRESS & FRIEDMAN; THE LAW OFFICES OF ALAN S. FUTERFAS; and MCDERMOTT WILL & EMERY.  
+
 ```{r}
 
-
-
+payments %>%
+  filter(disbursement_description == "LEGAL CONSULTING") %>%
+  group_by(recipient_name) %>%
+  summarize(total = n(), paid = sum(disbursement_amount)) %>%
+  arrange(desc(paid))
 
 
 
@@ -163,21 +172,30 @@ Who were the 5 biggest recipients of campaign spending on "LEGAL CONSULTING"..?
 
 Who are the top 5 individuals (vs. organization) were paid by the campaign committee?
 
+- I first called the payments dataset and used the tidyverse pipe operator to connect the filter() function so I could filter by the "INDIVIDUAL" entity type. Then, I grouped by recipient_name and used summarize() to sort by amount_paid, which sums the disbursements for a specific individual. Finally, I arranged the amount_paid variable in descending order so the biggest, highest paid individuals would show up first. The most highly paid individuals were GLASSNER, MICHAEL; DOLLMAN, SEAN; CENTINELLO, DARREN; CARR, CHRISTOPHER; and PENCE, JOHN.  
+
 ```{r}
 
-
-
-
-
+payments %>%
+  filter(entity_type_desc=="INDIVIDUAL") %>%
+  group_by(recipient_name) %>%
+  summarize(amount_paid = sum(disbursement_amount)) %>%
+  arrange(desc(amount_paid))
 
 
 ```
 
-For the indvidual who was paid the most, which payment category (disbursement_description) was the top one for him or her? And how much money were they paid in that category?
+For the individual who was paid the most, which payment category (disbursement_description) was the top one for him or her? And how much money were they paid in that category?
+
+- I first called the payments dataset and used the tidyverse pipe operator to connect the filter() function so I could filter by the highest paid recipient ("GLASSNER, MICHAEL") from the question above. Then, I grouped by recipient_name and used summarize() to sort by disbursement_amount and the disbursement_description. Finally, I arranged the disbursement_amount variable in descending order so the top, most expensive categories would show up first. The top payment category was payroll for Michael Glassner. 
 
 ```{r}
 
-
+payments %>%
+  filter(recipient_name=="GLASSNER, MICHAEL") %>%
+  group_by(recipient_name) %>%
+  summarize(disbursement_amount, disbursement_description) %>%
+  arrange(desc(disbursement_amount))
 
 
 
