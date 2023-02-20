@@ -61,11 +61,11 @@ Take a moment to look at the various categories included for each disbursement.
 
 Without doing any analysis yet, what are three questions you might try to answer using this dataset? Write your narrative answers in the spaces below.
 
-1.  
+1.  Which organization had the highest disbursement?
 
-2.  
+2.  Which type of disbursement (disbursement_description) is most popular?
 
-3.  
+3.  Are most entities individuals or organizations?
 
 ## Coding Assignment Questions
 
@@ -79,9 +79,13 @@ Without doing any analysis yet, what are three questions you might try to answer
 
 How much was spent in the 2017 vs. 2018 reporting year?
 
+-   To answer this question, I first called the payments dataset and used the tidyverse pipe operator to connect the group_by() command. I then grouped by the report year (2017 and 2018) and used summarize to create a category called amount_spent, which added together the disbursements from each year with the sum() function and displayed them in a resulting tibble. The results show that $16,888,149	was spent in 2017 and $37,406,905	was spent in 2018.
+
 ```{r}
 
-
+payments %>%
+  group_by(report_year) %>%
+  summarize(amount_spent = sum(disbursement_amount))
 
 
 
@@ -91,12 +95,16 @@ How much was spent in the 2017 vs. 2018 reporting year?
 
 Tally the total overall disbursement amounts for each month (distinguishing between say, Oct. 2018 v. Oct. 2019). In which month was spending the highest?
 
+- In order to tally by month and distinguish by year, I created a new variable called disbursement_year_month that concatenated the month and year of a specific disbursement with the paste() function. Then, I grouped the payments dataset by that variable and summarized by the total disbursement amount using the sum() function. Lastly, I arranged the amount_spent in descending order to discover that spending was highest in October 2018 at $9,738,567.60. 
+
 ```{r}
 
+payments$disbursement_year_month = paste(payments$disbursement_month, payments$disbursement_year, sep = " ")
 
-
-
-
+payments %>%
+  group_by(disbursement_year_month) %>%
+  summarize(amount_spent = sum(disbursement_amount)) %>%
+  arrange(desc(amount_spent))
 
 ```
 
@@ -104,8 +112,11 @@ Which recipient (recipient_name) was paid the most in the 2020 election cycle?
 
 ```{r}
 
-
-
+payments %>%
+  filter(election_cycle == 2020) %>%
+  group_by(recipient_name) %>%
+  summarize(amount_paid = sum(disbursement_amount)) %>%
+  arrange(desc(amount_paid))
 
 
 
@@ -116,7 +127,11 @@ Look at what this recipient was paid for. What service or good (see the "disburs
 
 ```{r}
 
-
+payments %>%
+  filter(election_cycle == 2020) %>%
+  group_by(recipient_name) %>%
+  summarize(disbursement_description, disbursement_amount) %>%
+  arrange(desc(disbursement_amount))
 
 
 
@@ -146,7 +161,6 @@ Who were the 5 biggest recipients of campaign spending on "LEGAL CONSULTING"..?
 
 ```
 
-
 Who are the top 5 individuals (vs. organization) were paid by the campaign committee?
 
 ```{r}
@@ -158,7 +172,6 @@ Who are the top 5 individuals (vs. organization) were paid by the campaign commi
 
 
 ```
-
 
 For the indvidual who was paid the most, which payment category (disbursement_description) was the top one for him or her? And how much money were they paid in that category?
 
